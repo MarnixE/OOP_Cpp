@@ -6,6 +6,7 @@
 #include <map>
 #include <stdexcept>
 #include <utility>
+#include <exception>
 
 template <typename T>
 class Vector
@@ -13,7 +14,7 @@ class Vector
     // Your implementation of the Vector class starts here
     public:        
         // Default Constructor
-        Vector():length(0),data(nullptr);
+        Vector():length(0),data(nullptr){};
 
         // Copy constructor
         Vector(const Vector& other)
@@ -32,7 +33,7 @@ class Vector
         }
 
         //Constructor 1
-        Vector(const int l):length(l),data(new T [l]);
+        Vector(const int l):length(l),data(new T [l]){};
 
         //Constructor 2
         Vector(const std::initializer_list<T>& list)
@@ -81,14 +82,32 @@ class Vector
 
         // Operator+
 
-        Vector operator+(const Vector& other) const
+        // Add another vector
+        template<typename U>
+        auto operator+(const Vector<U>& other) const -> Vector<decltype(data[0]+other.data[0])>
         {
-            Vector new_c(other.length);
-            for (int i=0; i<other.length; i++)
-            {
-                new_c.data[i] = data[i]+other.data[i];
-            }
-            return new_c;
+            // Throw exception if the vectors have different length
+            if (length!=other.length) throw "Vectors have different size!";
+
+            Vector<decltype(data[0]+other.data[0])> a;
+            for (auto i=0; i<length; i++)
+                a.data[i] = data[i] + other.data[i];
+            return a;
+        }
+
+        // Operator-
+
+        // Subtract another vector
+        template<typename U>
+        auto operator-(const Vector<U>& other) const -> Vector<decltype(data[0]-other.data[0])>
+        {
+            // Throw exception if the vectors have different length
+            if (length!=other.length) throw "Vectors have different size!";
+            
+            Vector<decltype(data[0]-other.data[0])> a;
+            for (auto i=0; i<length; i++)
+                a.data[i] = data[i] - other.data[i];
+            return a;
         }
 
     private:
