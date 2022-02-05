@@ -7,6 +7,8 @@
 #include <stdexcept>
 #include <utility>
 #include <exception>
+#include<vector>
+#include<array>
 
 template <typename T>
 class Vector
@@ -80,11 +82,16 @@ class Vector
             return *this;
         } 
 
+        T& operator[](int i)const
+        {
+            return data[i];
+        }
+
         // Operator+
 
         // Add another vector
         template<typename U>
-        auto operator+(const Vector<U>& other) const -> Vector<decltype(data[0]+other.data[0])>
+        auto operator+(const Vector<U>& other) const
         {
             // Throw exception if the vectors have different length
             if (length!=other.length) throw "Vectors have different size!";
@@ -99,7 +106,7 @@ class Vector
 
         // Subtract another vector
         template<typename U>
-        auto operator-(const Vector<U>& other) const -> Vector<decltype(data[0]-other.data[0])>
+        auto operator-(const Vector<U>& other) const
         {
             // Throw exception if the vectors have different length
             if (length!=other.length) throw "Vectors have different size!";
@@ -112,7 +119,7 @@ class Vector
 
     private:
         int length;
-        T data;
+        T* data;
 
 };
 
@@ -194,13 +201,18 @@ class SimplestWalker
 int main(int argc, char* argv[])
 {
     // Your testing of the simplest walker class starts here
-    Matrix<double> M(10, 20); 
+    // Matrix<double> M(10, 20); 
+    Vector<int> v1 = {1,2,3};
+    Vector<int> v2 = {1,2,3};
+    Vector<int> v3;
+    v3 = v2+v1;
 
-    M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
+    // M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
     // M[{1,2}] = 2.0;
 
-    std::cout << M[{0,0}] << std::endl; // prints 1.0
+    // std::cout << M[{0,0}] << std::endl; // prints 1.0
     // std::cout << M({3,3}) << std::endl;
+    std::cout << v1[1] << std::endl;
 
     return 0;
 }
