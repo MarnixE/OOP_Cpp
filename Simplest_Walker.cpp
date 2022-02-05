@@ -97,7 +97,7 @@ class Vector
         {
             // Throw exception if the vectors have different length
             if (length!=other.length) throw "Vectors have different size!";
-
+            else
             Vector<decltype(data[0]+other.data[0])> a;
             for (auto i=0; i<length; i++)
                 a.data[i] = data[i] + other.data[i];
@@ -112,7 +112,7 @@ class Vector
         {
             // Throw exception if the vectors have different length
             if (length!=other.length) throw "Vectors have different size!";
-            
+            else
             Vector<decltype(data[0]-other.data[0])> a;
             for (auto i=0; i<length; i++)
                 a.data[i] = data[i] - other.data[i];
