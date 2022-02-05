@@ -9,6 +9,8 @@
 #include <exception>
 #include<vector>
 #include<array>
+typedef std::pair<int, int> pair;
+
 
 template <typename T>
 class Vector
@@ -145,19 +147,25 @@ public:
     Matrix(int r, int c)
     {
         T M[r][c];
-        const std::map<T,T> Map;
+        std::map<pair,T> Map;
     };
 
-    T& operator[] (const std::pair<int, int>& ij)
+    T& operator[] (const pair& ij)
     {
         return Map[ij];
     }
 
 
-    // T operator()(const std::pair<int, int>& ij) const
-    // {
-
-    // }
+     T& operator()(const pair& ij) const
+    {
+        // Throw exception if the vectors have different length
+        if (Map[ij]==null) throw "Element is empty!";
+        
+        else
+        {
+            return Map[ij];
+        } 
+    }
 
     // // destructor
     // ~Matrix()
@@ -167,8 +175,8 @@ public:
     // }
 
 private:
-    const std::map<T,T> Map;
-    T M;
+    std::map<pair,T> Map;
+    const T M;
 
 };
 
