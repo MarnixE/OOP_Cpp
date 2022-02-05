@@ -98,10 +98,9 @@ class Vector
             // Throw exception if the vectors have different length
             if (length!=other.length) throw "Vectors have different size!";
             else
-            Vector<decltype(data[0]+other.data[0])> a;
             for (auto i=0; i<length; i++)
-                a.data[i] = data[i] + other.data[i];
-            return a;
+                data[i] = data[i] + other.data[i];
+            return *this;
         }
 
         // Operator-
@@ -113,10 +112,9 @@ class Vector
             // Throw exception if the vectors have different length
             if (length!=other.length) throw "Vectors have different size!";
             else
-            Vector<decltype(data[0]-other.data[0])> a;
             for (auto i=0; i<length; i++)
-                a.data[i] = data[i] - other.data[i];
-            return a;
+                data[i] = data[i] - other.data[i];
+            return *this;
         }
 
     private:
@@ -159,7 +157,7 @@ public:
      T& operator()(const pair& ij) const
     {
         // Throw exception if the vectors have different length
-        if (Map[ij]==null) throw "Element is empty!";
+        if (Map[ij]==0) throw "Element is empty!";
         
         else
         {
@@ -210,17 +208,17 @@ int main(int argc, char* argv[])
 {
     // Your testing of the simplest walker class starts here
     // Matrix<double> M(10, 20); 
-    Vector<int> v1 = {1,2,3};
+    Vector<int> v1 = {8,7,5};
     Vector<int> v2 = {1,2,3};
-    Vector<int> v3;
-    v3 = v2+v1;
+    Vector v3 = v1-v2;
+    // v3 = v2+v1;
 
     // M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
     // M[{1,2}] = 2.0;
 
     // std::cout << M[{0,0}] << std::endl; // prints 1.0
     // std::cout << M({3,3}) << std::endl;
-    std::cout << v1[1] << std::endl;
+    std::cout << v3[2] << std::endl;
 
     return 0;
 }
