@@ -137,25 +137,31 @@ class Matrix
 public:
     Matrix(int r, int c)
     {
-        const std::map<T,T> M;
-    }
+        T M[r][c];
+        const std::map<T,T> Map;
+    };
 
-    Matrix& operator[] (const std::pair<int, int>& ij)
+    T& operator[] (const std::pair<int, int>& ij)
     {
-        if (M[ij] != 0)
-        {
-           return M[ij]; 
-        }
-    }
-
-    // destructor
-    ~Matrix()
-    {
-        delete[] M;
-        M = nullptr;
+        return Map[ij];
     }
 
 
+    // T operator()(const std::pair<int, int>& ij) const
+    // {
+
+    // }
+
+    // // destructor
+    // ~Matrix()
+    // {
+    //     delete[] M;
+    //     M = nullptr;
+    // }
+
+private:
+    const std::map<T,T> Map;
+    T M;
 
 };
 
@@ -167,6 +173,7 @@ int bicgstab(const Matrix<T>& A,
              int              maxiter = 100)
 {
     // Your implementation of the bicgstab function starts here
+    return 0;
 }
 
 template<typename T>
@@ -188,6 +195,12 @@ int main(int argc, char* argv[])
 {
     // Your testing of the simplest walker class starts here
     Matrix<double> M(10, 20); 
+
+    M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
+    // M[{1,2}] = 2.0;
+
+    std::cout << M[{0,0}] << std::endl; // prints 1.0
+    // std::cout << M({3,3}) << std::endl;
 
     return 0;
 }
