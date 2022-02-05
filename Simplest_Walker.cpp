@@ -8,127 +8,129 @@
 #include <utility>
 #include <exception>
 
-template <typename T>
-class Vector
-{
-    // Your implementation of the Vector class starts here
-    public:        
-        // Default Constructor
-        Vector():length(0),data(nullptr){};
+typedef std::pair<int, int> pair;
 
-        // Copy constructor
-        Vector(const Vector& other)
-        : Vector(other.length)
-        {
-            for (auto i=0; i<other.length; i++)
-                data[i] = other.data[i];        
-        }
+// template <typename T>
+// class Vector
+// {
+//     // Your implementation of the Vector class starts here
+//     public:        
+//         // Default Constructor
+//         Vector():length(0),data(nullptr){};
 
-        // Move Constructor
-        Vector(Vector&& other)
-        : length(other.length),data(other.data)
-        {
-            other.length = 0;
-            other.data   = nullptr;
-        }
+//         // Copy constructor
+//         Vector(const Vector& other)
+//         : Vector(other.length)
+//         {
+//             for (auto i=0; i<other.length; i++)
+//                 data[i] = other.data[i];        
+//         }
 
-        //Constructor 1
-        Vector(const int l):length(l),data(new T [l]){};
+//         // Move Constructor
+//         Vector(Vector&& other)
+//         : length(other.length),data(other.data)
+//         {
+//             other.length = 0;
+//             other.data   = nullptr;
+//         }
 
-        //Constructor 2
-        Vector(const std::initializer_list<T>& list)
-        : Vector((int)list.size())
-        {
-            std::uninitialized_copy(list.begin(), list.end(), data);
-        }
+//         //Constructor 1
+//         Vector(const int l):length(l),data(new T [l]){};
 
-        // destructor
-        ~Vector()
-        {
-            delete[] data;
-            data = nullptr;
-            length = 0;
-        }
+//         //Constructor 2
+//         Vector(const std::initializer_list<T>& list)
+//         : Vector((int)list.size())
+//         {
+//             std::uninitialized_copy(list.begin(), list.end(), data);
+//         }
 
-        // Operators
+//         // destructor
+//         ~Vector()
+//         {
+//             delete[] data;
+//             data = nullptr;
+//             length = 0;
+//         }
 
-        // Copy assignment
-        Vector& operator=(const Vector& other)
-        {
-            if (this != &other)
-            {
-                delete[] data;
-                length = other.length;
-                data   = new double[other.length];
-                for (int i=0; i<other.length; i++)
-                    data[i] = other.data[i];
-            }
-            return *this;
-        }
+//         // Operators
 
-        // Move assignment
-        Vector& operator=(Vector&& other)
-        {
-            if (this != &other)
-            {
-                delete[] data;
-                length = other.length;
-                data   = other.data;
-                other.length = 0;
-                other.data   = nullptr;
-            }
-            return *this;
-        } 
+//         // Copy assignment
+//         Vector& operator=(const Vector& other)
+//         {
+//             if (this != &other)
+//             {
+//                 delete[] data;
+//                 length = other.length;
+//                 data   = new double[other.length];
+//                 for (int i=0; i<other.length; i++)
+//                     data[i] = other.data[i];
+//             }
+//             return *this;
+//         }
 
-        // Operator+
+//         // Move assignment
+//         Vector& operator=(Vector&& other)
+//         {
+//             if (this != &other)
+//             {
+//                 delete[] data;
+//                 length = other.length;
+//                 data   = other.data;
+//                 other.length = 0;
+//                 other.data   = nullptr;
+//             }
+//             return *this;
+//         } 
 
-        // Add another vector
-        template<typename U>
-        auto operator+(const Vector<U>& other) const -> Vector<decltype(data[0]+other.data[0])>
-        {
-            // Throw exception if the vectors have different length
-            if (length!=other.length) throw "Vectors have different size!";
+//         // Operator+
 
-            Vector<decltype(data[0]+other.data[0])> a;
-            for (auto i=0; i<length; i++)
-                a.data[i] = data[i] + other.data[i];
-            return a;
-        }
+//         // Add another vector
+//         template<typename U>
+//         auto operator+(const Vector<U>& other) const -> Vector<decltype(data[0]+other.data[0])>
+//         {
+//             // Throw exception if the vectors have different length
+//             if (length!=other.length) throw "Vectors have different size!";
 
-        // Operator-
+//             Vector<decltype(data[0]+other.data[0])> a;
+//             for (auto i=0; i<length; i++)
+//                 a.data[i] = data[i] + other.data[i];
+//             return a;
+//         }
 
-        // Subtract another vector
-        template<typename U>
-        auto operator-(const Vector<U>& other) const -> Vector<decltype(data[0]-other.data[0])>
-        {
-            // Throw exception if the vectors have different length
-            if (length!=other.length) throw "Vectors have different size!";
+//         // Operator-
+
+//         // Subtract another vector
+//         template<typename U>
+//         auto operator-(const Vector<U>& other) const -> Vector<decltype(data[0]-other.data[0])>
+//         {
+//             // Throw exception if the vectors have different length
+//             if (length!=other.length) throw "Vectors have different size!";
             
-            Vector<decltype(data[0]-other.data[0])> a;
-            for (auto i=0; i<length; i++)
-                a.data[i] = data[i] - other.data[i];
-            return a;
-        }
+//             Vector<decltype(data[0]-other.data[0])> a;
+//             for (auto i=0; i<length; i++)
+//                 a.data[i] = data[i] - other.data[i];
+//             return a;
+//         }
 
-    private:
-        int length;
-        T data;
+//     private:
+//         int length;
+//         T data;
 
-};
+// };
 
-template<typename T, typename U>
-typename std::common_type<T,U>::type 
-dot(const Vector<T>& lhs, 
-    const Vector<U>& rhs)
-{
-    // Your implementation of the dot function starts here
-}
+// template<typename T, typename U>
+// typename std::common_type<T,U>::type 
+// dot(const Vector<T>& lhs, 
+//     const Vector<U>& rhs)
+// {
+//     // Your implementation of the dot function starts here
+// }
 
-template<typename T>
-T norm(const Vector<T>& vec)
-{
-    // Your implementation of the norm function starts here
-}
+// template<typename T>
+// T norm(const Vector<T>& vec)
+// {
+//     // Your implementation of the norm function starts here
+// }
 
 template <typename T>
 class Matrix
@@ -138,19 +140,25 @@ public:
     Matrix(int r, int c)
     {
         T M[r][c];
-        const std::map<T,T> Map;
+        std::map<pair,T> Map;
     };
 
-    T& operator[] (const std::pair<int, int>& ij)
+    T& operator[] (const pair& ij)
     {
         return Map[ij];
     }
 
 
-    // T operator()(const std::pair<int, int>& ij) const
-    // {
-
-    // }
+     T& operator()(const pair& ij) const
+    {
+        // Throw exception if the vectors have different length
+        if (Map[ij]==null) throw "Element is empty!";
+        
+        else
+        {
+            return Map[ij];
+        } 
+    }
 
     // // destructor
     // ~Matrix()
@@ -160,8 +168,8 @@ public:
     // }
 
 private:
-    const std::map<T,T> Map;
-    T M;
+    std::map<pair,T> Map;
+    const T M;
 
 };
 
