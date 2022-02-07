@@ -16,7 +16,10 @@ template <typename T>
 class Vector
 {
     // Your implementation of the Vector class starts here
-    public:        
+    public:  
+
+        int length;
+        T* data;      
         // Default Constructor
         Vector():length(0),data(nullptr){};
 
@@ -93,35 +96,55 @@ class Vector
 
         // Add another vector
         template<typename U>
-        auto operator+(const Vector<U>& other) const
+        auto operator+(const Vector<U>& other) const -> Vector<decltype(data[0]+other.data[0])>
         {
             // Throw exception if the vectors have different length
             if (length!=other.length) throw "Vectors have different size!";
             else
+            {
+            Vector<decltype(data[0]+other.data[0])> v3(other.length);
             for (auto i=0; i<length; i++)
-                data[i] = data[i] + other.data[i];
-            return *this;
+                v3.data[i] = data[i] + other.data[i];
+            return v3;
+            }
         }
 
-        // Operator-
+        // // Operator-
 
-        // Subtract another vector
+        // // Subtract another vector
         template<typename U>
-        auto operator-(const Vector<U>& other) const
+        auto operator-(const Vector<U>& other) const -> Vector<decltype(data[0]-other.data[0])>
         {
             // Throw exception if the vectors have different length
             if (length!=other.length) throw "Vectors have different size!";
             else
+            {
+            Vector<decltype(data[0]-other.data[0])> v3(other.length);
             for (auto i=0; i<length; i++)
-                data[i] = data[i] - other.data[i];
-            return *this;
+                v3.data[i] = data[i] - other.data[i];
+            return v3;
+            }
         }
 
-    private:
-        int length;
-        T* data;
-
+        template<typename A>
+        auto operator*(const A scalar) -> Vector<decltype(data[0]*scalar)>
+        {
+            Vector<decltype(data[0]*scalar)> v3(length);
+            for (auto i=0; i<length; i++)
+                v3.data[i] = data[i] * scalar;
+            return v3;
+        }
 };
+
+template<typename A,typename B>
+        auto operator*(const A scalar,Vector<B> vec) -> Vector<decltype(vec.data[0]*scalar)>
+        {
+            Vector<decltype(vec.data[0]*scalar)> v3(vec.length);
+            for (auto i=0; i<vec.length; i++)
+                v3.data[i] = vec.data[i] * scalar;
+            return v3;
+        }
+
 
 template<typename T, typename U>
 typename std::common_type<T,U>::type 
@@ -208,9 +231,9 @@ int main(int argc, char* argv[])
 {
     // Your testing of the simplest walker class starts here
     // Matrix<double> M(10, 20); 
-    Vector<int> v1 = {8,7,5};
+    Vector<double> v1(3);
     Vector<int> v2 = {1,2,3};
-    Vector v3 = v1-v2;
+    Vector v3 = 5*v2;
     // v3 = v2+v1;
 
     // M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
@@ -218,7 +241,7 @@ int main(int argc, char* argv[])
 
     // std::cout << M[{0,0}] << std::endl; // prints 1.0
     // std::cout << M({3,3}) << std::endl;
-    std::cout << v3[2] << std::endl;
+    std::cout << v3[0] << std::endl;
 
     return 0;
 }
