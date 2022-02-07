@@ -142,27 +142,26 @@ class Matrix
 {
     // Start your implementation of the matrix class here
 public:
-    Matrix(int r, int c)
+    Matrix(const int r, const int c)
     {
         T M[r][c];
         std::map<pair,T> Map;
     };
 
     T& operator[] (const pair& ij)
-    {
+    {   
         return Map[ij];
     }
 
 
-     T& operator()(const pair& ij) const
+     T operator()(const pair& ij) const
     {
         // Throw exception if the vectors have different length
-        if (Map[ij]==0) throw "Element is empty!";
+        auto it = Map.find(ij);
+        if (it == Map.end()) throw "Element is empty!";
         
-        else
-        {
-            return Map[ij];
-        } 
+        return it->second;
+        
     }
 
     // // destructor
@@ -172,9 +171,9 @@ public:
     //     M = nullptr;
     // }
 
-private:
+// private:
     std::map<pair,T> Map;
-    const T M;
+    T M;
 
 };
 
@@ -207,18 +206,18 @@ class SimplestWalker
 int main(int argc, char* argv[])
 {
     // Your testing of the simplest walker class starts here
-    // Matrix<double> M(10, 20); 
-    Vector<int> v1 = {8,7,5};
-    Vector<int> v2 = {1,2,3};
-    Vector v3 = v1-v2;
+    Matrix<double> M(10, 20); 
+    // Vector<int> v1 = {8,7,5};
+    // Vector<int> v2 = {1,2,3};
+    // Vector v3 = v1-v2;
     // v3 = v2+v1;
 
-    // M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
-    // M[{1,2}] = 2.0;
+    M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
+    M[{1,2}] = 2.0;
 
-    // std::cout << M[{0,0}] << std::endl; // prints 1.0
-    // std::cout << M({3,3}) << std::endl;
-    std::cout << v3[2] << std::endl;
+    std::cout << M[{0,0}] << std::endl; // prints 1.0
+    std::cout << M({3,3}) << std::endl;
+    // std::cout << 2 << std::endl;
 
     return 0;
 }
