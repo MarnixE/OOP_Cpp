@@ -145,6 +145,11 @@ template<typename A,typename B>
             return v3;
         }
 
+template<typename A>
+        int len(Vector<A> vec)
+        {
+            return vec.length;
+        }
 
 template<typename T, typename U>
 typename std::common_type<T,U>::type 
@@ -152,12 +157,25 @@ dot(const Vector<T>& lhs,
     const Vector<U>& rhs)
 {
     // Your implementation of the dot function starts here
+    if (lhs.length!=rhs.length) throw "Vectors have different size!";
+    else
+    {
+        auto sum = 0;
+        for (auto i=0; i<lhs.length; i++)
+            sum = sum + lhs.data[i]*rhs.data[i];
+        return sum;
+    }
+
 }
 
 template<typename T>
 T norm(const Vector<T>& vec)
 {
     // Your implementation of the norm function starts here
+    auto norm = 0;
+    for (auto i=0; i<vec.length; i++)
+        norm = norm + pow(vec.data[i],2);
+    return sqrt(norm);
 }
 
 template <typename T>
@@ -230,17 +248,17 @@ int main(int argc, char* argv[])
 {
     // Your testing of the simplest walker class starts here
     Matrix<double> M(10, 20); 
-    // Vector<int> v1 = {8,7,5};
-    // Vector<int> v2 = {1,2,3};
+    Vector<int> v1 = {8,7,5};
+    Vector<float> v2 = {1.0,2.0,3.0};
     // Vector v3 = v1-v2;
     // v3 = v2+v1;
 
-    M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
-    M[{1,2}] = 2.0;
+    // M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
+    // M[{1,2}] = 2.0;
 
-    std::cout << M[{0,0}] << std::endl; // prints 1.0
-    std::cout << M({3,3}) << std::endl;
-    // std::cout << 2 << std::endl;
+    // std::cout << M[{0,0}] << std::endl; // prints 1.0
+    // std::cout << M({3,3}) << std::endl;
+    std::cout << norm(v2) << std::endl;
 
     return 0;
 }
