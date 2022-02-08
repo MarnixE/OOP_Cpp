@@ -16,10 +16,7 @@ template <typename T>
 class Vector
 {
     // Your implementation of the Vector class starts here
-    public:  
-
-        int length;
-        T* data;      
+    public:        
         // Default Constructor
         Vector():length(0),data(nullptr){};
 
@@ -95,61 +92,38 @@ class Vector
         // Operator+
 
         // Add another vector
-        template<typename U>
-        auto operator+(const Vector<U>& other) const -> Vector<decltype(data[0]+other.data[0])>
-        {
-            // Throw exception if the vectors have different length
-            if (length!=other.length) throw "Vectors have different size!";
-            else
-            {
-            Vector<decltype(data[0]+other.data[0])> v3(other.length);
-            for (auto i=0; i<length; i++)
-                v3.data[i] = data[i] + other.data[i];
-            return v3;
-            }
-        }
+        // template<typename U>
+        // auto operator+(const Vector<U>& other) const
+        // {
+        //     // Throw exception if the vectors have different length
+        //     if (length!=other.length) throw "Vectors have different size!";
+        //     else
+        //     Vector<decltype(data[0]+other.data[0])> a;
+        //     for (auto i=0; i<length; i++)
+        //         a.data[i] = data[i] + other.data[i];
+        //     return a;
+        // }
 
-        // // Operator-
+        // Operator-
 
-        // // Subtract another vector
-        template<typename U>
-        auto operator-(const Vector<U>& other) const -> Vector<decltype(data[0]-other.data[0])>
-        {
-            // Throw exception if the vectors have different length
-            if (length!=other.length) throw "Vectors have different size!";
-            else
-            {
-            Vector<decltype(data[0]-other.data[0])> v3(other.length);
-            for (auto i=0; i<length; i++)
-                v3.data[i] = data[i] - other.data[i];
-            return v3;
-            }
-        }
+        // Subtract another vector
+        // template<typename U>
+        // auto operator-(const Vector<U>& other) const
+        // {
+        //     // Throw exception if the vectors have different length
+        //     if (length!=other.length) throw "Vectors have different size!";
+        //     else
+        //     Vector<decltype(data[0]-other.data[0])> a;
+        //     for (auto i=0; i<length; i++)
+        //         a.data[i] = data[i] - other.data[i];
+        //     return a;
+        // }
 
-        template<typename A>
-        auto operator*(const A scalar) -> Vector<decltype(data[0]*scalar)>
-        {
-            Vector<decltype(data[0]*scalar)> v3(length);
-            for (auto i=0; i<length; i++)
-                v3.data[i] = data[i] * scalar;
-            return v3;
-        }
+    private:
+        int length;
+        T* data;
+
 };
-
-template<typename A,typename B>
-        auto operator*(const A scalar,Vector<B> vec) -> Vector<decltype(vec.data[0]*scalar)>
-        {
-            Vector<decltype(vec.data[0]*scalar)> v3(vec.length);
-            for (auto i=0; i<vec.length; i++)
-                v3.data[i] = vec.data[i] * scalar;
-            return v3;
-        }
-
-template<typename A>
-        int len(Vector<A> vec)
-        {
-            return vec.length;
-        }
 
 template<typename T, typename U>
 typename std::common_type<T,U>::type 
@@ -157,25 +131,12 @@ dot(const Vector<T>& lhs,
     const Vector<U>& rhs)
 {
     // Your implementation of the dot function starts here
-    if (lhs.length!=rhs.length) throw "Vectors have different size!";
-    else
-    {
-        auto sum = 0;
-        for (auto i=0; i<lhs.length; i++)
-            sum = sum + lhs.data[i]*rhs.data[i];
-        return sum;
-    }
-
 }
 
 template<typename T>
 T norm(const Vector<T>& vec)
 {
     // Your implementation of the norm function starts here
-    auto norm = 0;
-    for (auto i=0; i<vec.length; i++)
-        norm = norm + pow(vec.data[i],2);
-    return sqrt(norm);
 }
 
 template <typename T>
@@ -183,28 +144,25 @@ class Matrix
 {
     // Start your implementation of the matrix class here
 public:
-    Matrix(const int r, const int c)
+    Matrix(int r, int c) : rows(r), cols(c)
     {
-        T M[r][c];
         std::map<pair,T> Map;
     };
 
     T& operator[] (const pair& ij)
-    {   
+    {
         return Map[ij];
     }
 
 
-     T operator()(const pair& ij) const
+     const T& operator() (const pair& ij)  const
     {
         // Throw exception if the vectors have different length
-        auto it = Map.find(ij);
-        if (it == Map.end()) throw "Element is empty!";
-        
-        return it->second;
-        
+        // auto it = Map.find(ij);
+        // if (it == Map.end()) throw "Element is empty!";
+        return Map.at(ij);
     }
-
+    
     // // destructor
     // ~Matrix()
     // {
@@ -212,11 +170,33 @@ public:
     //     M = nullptr;
     // }
 
-// private:
+private:
     std::map<pair,T> Map;
-    T M;
+    int rows;
+    int cols;
 
 };
+
+// template<typename T, typename U>
+// Vector<typename std::common_type<T,U>::type>
+// operator* (const Matrix<T>& lhs, const Vector<U>& rhs)
+// {
+
+//     if (lhs.cols != rhs.length) throw "The Matrix and Vector are not compatible.";
+
+//     Vector<typename std::common_type<T,U>::type> v(lhs.r);
+
+//     std::map<pair, T>::iterator it;
+//     for (it = lhs.begin(); it != lhs.end(); it++)
+//     {
+//         int i   = it->first.first;
+//         int j   = it->first.second;
+//         T value = it->second;
+
+//         v[j] = v[j] + value * rhs[i]        
+//     }
+//     return v
+// }
 
 template<typename T>
 int bicgstab(const Matrix<T>& A, 
@@ -236,7 +216,7 @@ void heun(const Vector<std::function<T(Vector<T> const&, T)> >& f,
           T&                                                    t)
 {
     // Your implementation of the heun function starts here
-};
+}
 
 template<typename T>
 class SimplestWalker
@@ -247,18 +227,27 @@ class SimplestWalker
 int main(int argc, char* argv[])
 {
     // Your testing of the simplest walker class starts here
-    Matrix<double> M(10, 20); 
-    Vector<int> v1 = {8,7,5};
-    Vector<float> v2 = {1.0,2.0,3.0};
-    // Vector v3 = v1-v2;
+    // Matrix<double> M(10, 20); 
+    Matrix<double> M(3, 3); 
+    // Vector<int> v1 = {1,2,3};
+    Vector<int> v2 = {1,2,3};
+    // Vector<int> v3;
     // v3 = v2+v1;
 
-    // M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
-    // M[{1,2}] = 2.0;
+    M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
+    M[{1,2}] = 2.0;
 
-    // std::cout << M[{0,0}] << std::endl; // prints 1.0
-    // std::cout << M({3,3}) << std::endl;
-    std::cout << norm(v2) << std::endl;
+    std::cout << M[{0,0}] << std::endl; // prints 1.0
+    std::cout << M({1,2}) << std::endl;
+    std::cout << M({3,3}) << std::endl;
+
+    Vector<double> v3;
+
+    std::cout << v2[2] << std::endl;
+
+    // v3 = M * v2;
+    std::cout << v3[2] << std::endl;
 
     return 0;
 }
+
