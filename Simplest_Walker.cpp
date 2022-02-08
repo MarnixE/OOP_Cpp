@@ -17,6 +17,9 @@ class Vector
 {
     // Your implementation of the Vector class starts here
     public:        
+        int length;
+        T* data;
+
         // Default Constructor
         Vector():length(0),data(nullptr){};
 
@@ -92,38 +95,60 @@ class Vector
         // Operator+
 
         // Add another vector
-        // template<typename U>
-        // auto operator+(const Vector<U>& other) const
-        // {
-        //     // Throw exception if the vectors have different length
-        //     if (length!=other.length) throw "Vectors have different size!";
-        //     else
-        //     Vector<decltype(data[0]+other.data[0])> a;
-        //     for (auto i=0; i<length; i++)
-        //         a.data[i] = data[i] + other.data[i];
-        //     return a;
-        // }
+        template<typename U>
+        auto operator+(const Vector<U>& other) const
+        {
+            // Throw exception if the vectors have different length
+            if (length!=other.length) throw "Vectors have different size!";
+            else
+            Vector<decltype(data[0]+other.data[0])> a;
+            for (auto i=0; i<length; i++)
+                a.data[i] = data[i] + other.data[i];
+            return a;
+        }
 
         // Operator-
 
         // Subtract another vector
-        // template<typename U>
-        // auto operator-(const Vector<U>& other) const
-        // {
-        //     // Throw exception if the vectors have different length
-        //     if (length!=other.length) throw "Vectors have different size!";
-        //     else
-        //     Vector<decltype(data[0]-other.data[0])> a;
-        //     for (auto i=0; i<length; i++)
-        //         a.data[i] = data[i] - other.data[i];
-        //     return a;
-        // }
+        template<typename U>
+        auto operator-(const Vector<U>& other) const
+        {
+            // Throw exception if the vectors have different length
+            if (length!=other.length) throw "Vectors have different size!";
+            else
+            Vector<decltype(data[0]-other.data[0])> a;
+            for (auto i=0; i<length; i++)
+                a.data[i] = data[i] - other.data[i];
+            return a;
+        }
 
-    private:
-        int length;
-        T* data;
+        template<typename A>
+        auto operator*(const A scalar) -> Vector<decltype(data[0]*scalar)>
+        {
+            Vector<decltype(data[0]*scalar)> v3(length);
+            for (auto i=0; i<length; i++)
+                v3.data[i] = data[i] * scalar;
+            return v3;
+        }
 
 };
+
+template<typename A,typename B>
+        auto operator*(const A scalar,Vector<B> vec) -> Vector<decltype(vec.data[0]*scalar)>
+        {
+            Vector<decltype(vec.data[0]*scalar)> v3(vec.length);
+            for (auto i=0; i<vec.length; i++)
+                v3.data[i] = vec.data[i] * scalar;
+            return v3;
+        }
+
+template<typename A>
+        int len(Vector<A> vec)
+        {
+            return vec.length;
+        }
+
+
 
 template<typename T, typename U>
 typename std::common_type<T,U>::type 
@@ -131,12 +156,24 @@ dot(const Vector<T>& lhs,
     const Vector<U>& rhs)
 {
     // Your implementation of the dot function starts here
+    if (lhs.length!=rhs.length) throw "Vectors have different size!";
+    else
+    {
+        auto sum = 0;
+        for (auto i=0; i<lhs.length; i++)
+            sum = sum + lhs.data[i]*rhs.data[i];
+        return sum;
+    }
 }
 
 template<typename T>
 T norm(const Vector<T>& vec)
 {
     // Your implementation of the norm function starts here
+    auto norm = 0;
+    for (auto i=0; i<vec.length; i++)
+        norm = norm + pow(vec.data[i],2);
+    return sqrt(norm);
 }
 
 template <typename T>
