@@ -96,30 +96,34 @@ class Vector
 
         // Add another vector
         template<typename U>
-        auto operator+(const Vector<U>& other) const
+        auto operator+(const Vector<U>& other) const-> Vector<decltype(data[0]+other.data[0])>
         {
             // Throw exception if the vectors have different length
             if (length!=other.length) throw "Vectors have different size!";
             else
-            Vector<decltype(data[0]+other.data[0])> a;
+            {
+            Vector<decltype(data[0]+other.data[0])> v3(other.length);
             for (auto i=0; i<length; i++)
-                a.data[i] = data[i] + other.data[i];
-            return a;
+                v3.data[i] = data[i] + other.data[i];
+            return v3;
+            }
         }
 
         // Operator-
 
         // Subtract another vector
         template<typename U>
-        auto operator-(const Vector<U>& other) const
+        auto operator-(const Vector<U>& other) const -> Vector<decltype(data[0]-other.data[0])>
         {
             // Throw exception if the vectors have different length
             if (length!=other.length) throw "Vectors have different size!";
             else
-            Vector<decltype(data[0]-other.data[0])> a;
+            {
+            Vector<decltype(data[0]-other.data[0])> v3(other.length);
             for (auto i=0; i<length; i++)
-                a.data[i] = data[i] - other.data[i];
-            return a;
+                v3.data[i] = data[i] - other.data[i];
+            return v3;
+            }
         }
 
         template<typename A>
@@ -267,23 +271,23 @@ int main(int argc, char* argv[])
     // Matrix<double> M(10, 20); 
     Matrix<double> M(3, 3); 
     // Vector<int> v1 = {1,2,3};
-    Vector<int> v2 = {1,2,3};
+    Vector<double> v2 = {1.0,2.0,3.0};
     // Vector<int> v3;
     // v3 = v2+v1;
 
-    M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
-    M[{1,2}] = 2.0;
+    // M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
+    // M[{1,2}] = 2.0;
 
-    std::cout << M[{0,0}] << std::endl; // prints 1.0
-    std::cout << M({1,2}) << std::endl;
-    std::cout << M({3,3}) << std::endl;
+    // std::cout << M[{0,0}] << std::endl; // prints 1.0
+    // std::cout << M({1,2}) << std::endl;
+    // std::cout << M({3,3}) << std::endl;
 
-    Vector<double> v3;
+    // Vector<double> v3;
 
-    std::cout << v2[2] << std::endl;
+    // std::cout << v2[2] << std::endl;
 
     // v3 = M * v2;
-    std::cout << v3[2] << std::endl;
+    std::cout << norm(v2) << std::endl;
 
     return 0;
 }
