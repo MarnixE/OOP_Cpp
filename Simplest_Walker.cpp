@@ -199,8 +199,6 @@ public:
      const T& operator() (const pair& ij)  const
     {
         // Throw exception if the vectors have different length
-        // auto it = Map.find(ij);
-        // if (it == Map.end()) throw "Element is empty!";
         return Map.at(ij);
     }
     
@@ -211,33 +209,33 @@ public:
     //     M = nullptr;
     // }
 
-private:
+// private:
     std::map<pair,T> Map;
     int rows;
     int cols;
 
 };
 
-// template<typename T, typename U>
-// Vector<typename std::common_type<T,U>::type>
-// operator* (const Matrix<T>& lhs, const Vector<U>& rhs)
-// {
+template<typename T, typename U>
+Vector<typename std::common_type<T,U>::type>
+operator* (const Matrix<T>& lhs, const Vector<U>& rhs)
+{
 
-//     if (lhs.cols != rhs.length) throw "The Matrix and Vector are not compatible.";
+    if (lhs.cols != rhs.length) throw "The Matrix and Vector are not compatible.";
 
-//     Vector<typename std::common_type<T,U>::type> v(lhs.r);
+    Vector<typename std::common_type<T,U>::type> v(lhs.rows);
 
-//     std::map<pair, T>::iterator it;
-//     for (it = lhs.begin(); it != lhs.end(); it++)
-//     {
-//         int i   = it->first.first;
-//         int j   = it->first.second;
-//         T value = it->second;
+    // for (typename std::map<pair, T>::iterator it = lhs.Map.begin(); it != lhs.Map.end(); it++)
+    for (auto const& it : lhs.Map)
+    {
+        int i   = it.first.first;
+        int j   = it.first.second;
+        T value = it.second;
 
-//         v[j] = v[j] + value * rhs[i]        
-//     }
-//     return v
-// }
+        v[j] = v[j] + value * rhs[i];    
+    }
+    return v;
+}
 
 template<typename T>
 int bicgstab(const Matrix<T>& A, 
@@ -272,11 +270,12 @@ int main(int argc, char* argv[])
     Matrix<double> M(3, 3); 
     // Vector<int> v1 = {1,2,3};
     Vector<double> v2 = {1.0,2.0,3.0};
-    // Vector<int> v3;
+    Vector<double> v3;
     // v3 = v2+v1;
 
-    // M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
-    // M[{1,2}] = 2.0;
+    M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
+    M[{1,2}] = 2.0;
+    M[{2,1}] = 5.0;
 
     // std::cout << M[{0,0}] << std::endl; // prints 1.0
     // std::cout << M({1,2}) << std::endl;
@@ -286,9 +285,11 @@ int main(int argc, char* argv[])
 
     // std::cout << v2[2] << std::endl;
 
-    // v3 = M * v2;
+    v3 = M * v2;
     std::cout << norm(v2) << std::endl;
+    std::cout << v3[0] << std::endl;
+    std::cout << v3[1] << std::endl;
+    std::cout << v3[2] << std::endl;
 
     return 0;
 }
-
