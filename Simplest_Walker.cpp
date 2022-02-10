@@ -244,10 +244,60 @@ int bicgstab(const Matrix<T>& A,
              T                tol     = (T)1e-8, 
              int              maxiter = 100)
 {
-    // Your implementation of the bicgstab function starts here
-    return 0;
-}
+    //auto q_0 = b-A*x_0;
+    //auto v_0,p_0 = 0;
+    //auto alpha, rho_0,omega_0 = 1;
 
+    Vector<T> q;
+    q.push_back(b-A*x[0]);
+    Vector<T> r;
+    r.push_back(b-A*x[0]);
+    Vector<T> p;
+    p.push_back(0);
+    Vector<T> v;
+    v.push_back(0);
+    auto alpha=1;
+    Vector<T> rho;
+    rho.push_back(1);
+    Vector<T>omega;
+    omega.push_back(1);
+
+
+
+
+    for (auto k=1; k<maxiter; k++)
+    {
+        auto rho_k = dot(q[0], r[k-1]);
+        r.push_back(rho_k);
+        auto beta = (rho[k]/rho[k-1])*(alpha/omega[k-1]);
+        auto p_k = r[k-1] + (beta*p[k-1]) - omega[k-1]*v[k-1];
+        p.push_back(p_k);
+        v.push_back(A*p[k]);
+        alpha = rho[k]/dot(q[0],v[k]);
+        auto h = x[k-1] + alpha*p[k];
+
+        if (norm(b-A*h)< tol)
+        {
+            x.push_back(h);
+            return k;
+        }
+        auto s = r[k-1] - alpha * v[k];
+        auto t = A*s;
+        auto omega_k= dot(t,s) / dot(t,t);
+        omega.push_back(omega_k);
+        auto x_k= h+omega[k]*s;
+        x.push_back(x_k);
+
+        if (norm(b-A*x[k])<tol)
+        {
+            return k;
+        }
+        auto r_k = s-omega[k]*t;
+        r.push_back(r_k);
+    }
+
+    return -1;
+}
 template<typename T>
 void heun(const Vector<std::function<T(Vector<T> const&, T)> >& f,
           Vector<T>&                                            y, 
