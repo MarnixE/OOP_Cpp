@@ -305,8 +305,12 @@ void heun(const Vector<std::function<T(Vector<T> const&, T)> >& f,
           T&                                                    t)
 {
     // Your implementation of the heun function starts here
-    Vector<double> y_bar = y + h * f(&y, 0.009);
-    y += h/2 * (f(&y, 0.009) + f(&y_bar, 0.009));
+    Vector<double> s = f(y, 0.009);
+
+    Vector<double> y_bar = y + h * s;
+
+    Vector<double> s_bar = f(y_bar, 0.009);
+    y = y + h/2 * (s + s_bar);
 }
 
 template<typename T>
@@ -314,7 +318,7 @@ class SimplestWalker
 {
     // Your implementation of the simplest walker class starts here
 public:
-    Vector<T> y;
+    const Vector<T> y;
     T h = 1E-3;
     T t;
     T g;
@@ -323,7 +327,7 @@ public:
                      T          t0, 
                      T          gamma)
         {
-            y = y0;
+            const Vector<T> y = y0;
             t = t0;
             g = gamma;
         }
@@ -338,7 +342,7 @@ public:
 
     const Vector<T>& step(T h) 
     {
-        heun(f,y,h,t);
+        heun(f,const& y,h,t);
         return y;
     }
 
