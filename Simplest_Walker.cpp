@@ -202,12 +202,12 @@ public:
         return Map.at(ij);
     }
     
-    // // destructor
-    // ~Matrix()
-    // {
-    //     delete[] M;
-    //     M = nullptr;
-    // }
+    // destructor
+    ~Matrix()
+    {
+        rows = 0;
+        cols = 0;
+    }
 
 // private:
     std::map<pair,T> Map;
@@ -305,12 +305,47 @@ void heun(const Vector<std::function<T(Vector<T> const&, T)> >& f,
           T&                                                    t)
 {
     // Your implementation of the heun function starts here
+    y_bar = y + h * f;
+    
+
+
 }
 
 template<typename T>
 class SimplestWalker
 {
     // Your implementation of the simplest walker class starts here
+public:
+    SimplestWalker(const Vector<T>& y0, 
+                     T          t0, 
+                     T          gamma) 
+                     : y(y0), t(t0), gamma(gamma)
+    {
+        Vector<std::function<double(const Vector<double>&, double)> > f =
+            {
+            [](Vector<double> const& y, double t) { return y0[2]; },
+            [](Vector<double> const& y, double t) { return y0[3]; },
+            [](Vector<double> const& y, double t) { return sin(y0[1] - gamma) + pow(y0[4],2) * sin(y0[0]) - cos(y0[1] - gamma) * sin(y0[0]); },
+            [](Vector<double> const& y, double t) { return sin(y0[1] - gamma); },
+            };
+    }
+
+    Vector<T> derivative(const Vector<T>& y) const 
+    {
+        Vector<std::function<double(const Vector<double>&, double)> > y_dot =
+            {
+            [](Vector<double> const& y, double t) { return y[2]; },
+            [](Vector<double> const& y, double t) { return y[3]; },
+            [](Vector<double> const& y, double t) { return sin(y[1] - gamma) + pow(y[4],2) * sin(y[0]) - cos(y[1] - gamma) * sin(y[0]); },
+            [](Vector<double> const& y, double t) { return sin(y[1] - gamma); },
+            };
+    }
+
+    Vector<std::function<T(Vector<T>, T)> > f;
+    Vector<T> y;
+    T h;
+    T t;
+    T gamma;
 };
 
 int main(int argc, char* argv[])
