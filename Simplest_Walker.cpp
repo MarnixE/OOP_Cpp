@@ -305,10 +305,8 @@ void heun(const Vector<std::function<T(Vector<T> const&, T)> >& f,
           T&                                                    t)
 {
     // Your implementation of the heun function starts here
-    y_bar = y + h * f;
-    
-
-
+    Vector<double> y_bar = y + h * f(&y, 0.009);
+    y += h/2 * (f(&y, 0.009) + f(&y_bar, 0.009));
 }
 
 template<typename T>
@@ -316,65 +314,80 @@ class SimplestWalker
 {
     // Your implementation of the simplest walker class starts here
 public:
+    Vector<T> y;
+    T h = 1E-3;
+    T t;
+    T g;
+
     SimplestWalker(const Vector<T>& y0, 
                      T          t0, 
-                     T          gamma) 
-                     : y(y0), t(t0), gamma(gamma)
-    {
-        Vector<std::function<double(const Vector<double>&, double)> > f =
-            {
-            [](Vector<double> const& y, double t) { return y0[2]; },
-            [](Vector<double> const& y, double t) { return y0[3]; },
-            [](Vector<double> const& y, double t) { return sin(y0[1] - gamma) + pow(y0[4],2) * sin(y0[0]) - cos(y0[1] - gamma) * sin(y0[0]); },
-            [](Vector<double> const& y, double t) { return sin(y0[1] - gamma); },
-            };
-    }
+                     T          gamma)
+        {
+            y = y0;
+            t = t0;
+            g = gamma;
+        }
 
     Vector<T> derivative(const Vector<T>& y) const 
     {
-        Vector<std::function<double(const Vector<double>&, double)> > y_dot =
-            {
-            [](Vector<double> const& y, double t) { return y[2]; },
-            [](Vector<double> const& y, double t) { return y[3]; },
-            [](Vector<double> const& y, double t) { return sin(y[1] - gamma) + pow(y[4],2) * sin(y[0]) - cos(y[1] - gamma) * sin(y[0]); },
-            [](Vector<double> const& y, double t) { return sin(y[1] - gamma); },
-            };
+        Vector<double> y_dot = {y[2], y[3], sin(y[1] - g) + 
+            pow(y[4],2) * sin(y[0]) - cos(y[1] - g) * sin(y[0]), sin(y[1] - g)};
+        
+        return y_dot;
     }
 
-    Vector<std::function<T(Vector<T>, T)> > f;
-    Vector<T> y;
-    T h;
-    T t;
-    T gamma;
+    const Vector<T>& step(T h) 
+    {
+        heun(f,y,h,t);
+        return y;
+    }
+
+// private:
+    Vector<std::function<double(const Vector<double>&, double)> > f =
+            {
+            [](Vector<double> const& y, double gamma) { return y[2]; },
+            [](Vector<double> const& y, double gamma) { return y[3]; },
+            [](Vector<double> const& y, double gamma) { return sin(y[1] - gamma) + pow(y[4],2) * sin(y[0]) - cos(y[1] - gamma) * sin(y[0]); },
+            [](Vector<double> const& y, double gamma) { return sin(y[1] - gamma); } };
 };
 
 int main(int argc, char* argv[])
 {
-    // Your testing of the simplest walker class starts here
-    // Matrix<double> M(10, 20); 
-    Matrix<double> M(3, 3); 
-    // Vector<int> v1 = {1,2,3};
-    Vector<double> v2 = {1.0,2.0,3.0};
-    Vector<double> v3;
-    // v3 = v2+v1;
-
-    M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
-    M[{1,2}] = 2.0;
-    M[{2,1}] = 5.0;
-
-    // std::cout << M[{0,0}] << std::endl; // prints 1.0
-    // std::cout << M({1,2}) << std::endl;
-    // std::cout << M({3,3}) << std::endl;
-
+    // // Your testing of the simplest walker class starts here
+    // // Matrix<double> M(10, 20); 
+    // Matrix<double> M(3, 3); 
+    // // Vector<int> v1 = {1,2,3};
+    // Vector<double> v2 = {1.0,2.0,3.0};
     // Vector<double> v3;
+    // // v3 = v2+v1;
 
-    // std::cout << v2[2] << std::endl;
+    // M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
+    // M[{1,2}] = 2.0;
+    // M[{2,1}] = 5.0;
 
-    v3 = M * v2;
-    std::cout << norm(v2) << std::endl;
-    std::cout << v3[0] << std::endl;
-    std::cout << v3[1] << std::endl;
-    std::cout << v3[2] << std::endl;
+    // // std::cout << M[{0,0}] << std::endl; // prints 1.0
+    // // std::cout << M({1,2}) << std::endl;
+    // // std::cout << M({3,3}) << std::endl;
+
+    // // Vector<double> v3;
+
+    // // std::cout << v2[2] << std::endl;
+
+    // v3 = M * v2;
+    // std::cout << norm(v2) << std::endl;
+    // std::cout << v3[0] << std::endl;
+    // std::cout << v3[1] << std::endl;
+    // std::cout << v3[2] << std::endl;
+    Vector<double> y0 = {0.4,0.2,0.0,-0.2};
+    double t0 = 0;
+    double gamma = 0.009;
+    double h = 0.001;
+
+    SimplestWalker<double> SW(y0, t0, gamma);
+
+    Vector<double> y_dot = SW.derivative(y0);
+
+    Vector<double> y_new = SW.step(h);
 
     return 0;
 }
