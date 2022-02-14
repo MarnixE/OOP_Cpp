@@ -305,11 +305,11 @@ void heun(const Vector<std::function<T(const Vector<T>&, T)> >& f,
           T&                                                    t)
 {
     // Your implementation of the heun function starts here
-    Vector<double> s = f(const y, 0.009);
+    Vector<double> s = {f[0](y, 0.009),f[1](y, 0.009),f[2](y, 0.009),f[3](y, 0.009)};
 
     Vector<double> y_bar = y + h * s;
 
-    Vector<double> s_bar = f(const y_bar, 0.009);
+    Vector<double> s_bar = {f[0](y_bar, 0.009),f[1](y_bar, 0.009),f[2](y_bar, 0.009),f[3](y_bar, 0.009)};
     y = y + h/2 * (s + s_bar);
 }
 
@@ -349,7 +349,14 @@ public:
     const Vector<T>& step(T h) 
     {
         Vector<T> y_dot = derivative(y);
-        heun(f,y,h,t);
+        
+        Vector<double> s = f[0](y, 0.009);
+
+        Vector<double> y_bar = y + h * s;
+
+        std::cout << y_bar[0] << std::endl;
+
+        // heun(f,y,h,t);
         return y;
     }
 };
