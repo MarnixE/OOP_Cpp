@@ -299,17 +299,17 @@ int bicgstab(const Matrix<T>& A,
     return -1;
 }
 template<typename T>
-void heun(const Vector<std::function<T(Vector<T> const&, T)> >& f,
+void heun(const Vector<std::function<T(const Vector<T>&, T)> >& f,
           Vector<T>&                                            y, 
           T                                                     h,
           T&                                                    t)
 {
     // Your implementation of the heun function starts here
-    Vector<double> s = f(y, 0.009);
+    Vector<double> s = f(const y, 0.009);
 
     Vector<double> y_bar = y + h * s;
 
-    Vector<double> s_bar = f(y_bar, 0.009);
+    Vector<double> s_bar = f(const y_bar, 0.009);
     y = y + h/2 * (s + s_bar);
 }
 
@@ -318,10 +318,16 @@ class SimplestWalker
 {
     // Your implementation of the simplest walker class starts here
 public:
-    const Vector<T> y;
+    Vector<T> y;
     T h = 1E-3;
     T t;
     T g;
+    const Vector<std::function<double(const Vector<double>&, double)> > f =
+            {
+            [](Vector<double> const& y, double gamma) { return y[2]; },
+            [](Vector<double> const& y, double gamma) { return y[3]; },
+            [](Vector<double> const& y, double gamma) { return sin(y[1] - gamma) + pow(y[4],2) * sin(y[0]) - cos(y[1] - gamma) * sin(y[0]); },
+            [](Vector<double> const& y, double gamma) { return sin(y[1] - gamma); } };
 
     SimplestWalker(const Vector<T>& y0, 
                      T          t0, 
@@ -342,17 +348,10 @@ public:
 
     const Vector<T>& step(T h) 
     {
-        heun(f,const& y,h,t);
+        Vector<T> y_dot = derivative(y);
+        heun(f,y,h,t);
         return y;
     }
-
-// private:
-    Vector<std::function<double(const Vector<double>&, double)> > f =
-            {
-            [](Vector<double> const& y, double gamma) { return y[2]; },
-            [](Vector<double> const& y, double gamma) { return y[3]; },
-            [](Vector<double> const& y, double gamma) { return sin(y[1] - gamma) + pow(y[4],2) * sin(y[0]) - cos(y[1] - gamma) * sin(y[0]); },
-            [](Vector<double> const& y, double gamma) { return sin(y[1] - gamma); } };
 };
 
 int main(int argc, char* argv[])
