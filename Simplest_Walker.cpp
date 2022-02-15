@@ -66,7 +66,7 @@ class Vector
             if (this != &other)
             {
                 delete[] data;
-                data   = new T[other.length];
+                data   = new T[other.length]();
                 length = other.length;
                 for (int i=0; i<other.length; i++)
                     data[i] = other.data[i];
@@ -79,16 +79,19 @@ class Vector
         {
             if (this != &other)
             {
-                delete[] data;
+                if (length!=0)
+                {
+                    delete[] data;
+                }
                 length = other.length;
                 data   = other.data;
                 other.length = 0;
-                other.data   = nullptr;
+                other.data   = nullptr;               
             }
             return *this;
         } 
 
-        T& operator[](int i)const
+        T& operator[](const int i)const
         {
             return data[i];
         }
@@ -320,7 +323,7 @@ class SimplestWalker
 {
     // Your implementation of the simplest walker class starts here
 public:
-    Vector<T> y = {1.};
+    Vector<T> y;
     T t;
     T g;
     const Vector<std::function<double(const Vector<double>&, double)> > f =
