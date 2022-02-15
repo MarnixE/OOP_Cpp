@@ -217,6 +217,8 @@ public:
 
     T& operator[] (const pair& ij)
     {
+        if (std::get<0>(ij) >= rows || std::get<1>(ij) >= rows) throw std::invalid_argument("Index is out of bounds!");
+
         return Map[ij];
     }
 
@@ -269,54 +271,55 @@ int bicgstab(const Matrix<T>& A,
              T                tol     = (T)1e-8, 
              int              maxiter = 100)
 {
-    //auto q_0 = b-A*x_0;
-    //auto v_0,p_0 = 0;
-    //auto alpha, rho_0,omega_0 = 1;
-
-    Vector<T> q_0(maxiter);
-    Vector<T> r(maxiter);
-    Vector<T> p(maxiter);
-    Vector<T> v(maxiter);
-    Vector<T> rho(maxiter);
-    Vector<T> omega(maxiter);
-    auto alpha=1;
     
-    q_0=b-A*x;
-    r=b-A*x;
-    rho[0]=1;
-    omega[0]=1;
-
-
-
+    Vector<T> p_prev(b.len());
+    Vector<T> v_prev(b.len());
+    
+    
+    Vector<T> q_0= b-A*x;  
+    Vector<T> r_prev= b-A*x;  
+    
+    T alpha=1;
+    T rho;
+    T beta;
+    T rho_prev=1;
+    T omega_prev=1;
+    T omega;
+    Vector<T> h;
+    Vector<T> s;
+    Vector<T> t;
 
     for (auto k=1; k<maxiter; k++)
     {
         // Vector<T> rho_prev = rho;
-        rho[k] = dot(q_0, r);
-        auto beta = (rho[k]/rho[k-1])*(alpha/omega[k]);
-        p[k] = r[k-1] + beta*(p[k-1] - omega[k-1]*v[k-1]);
-        v= (A*p);
-        alpha = rho[k]/dot(q_0,v);
-        auto h = x[k-1] + alpha*p[k];
+        rho = dot(q_0, r_prev);
+        beta = (rho/rho_prev)*(alpha/omega_prev);
+        p_prev = r_prev + beta*(p_prev - omega_prev*v_prev);
+        v_prev = (A*p_prev);
+        alpha = rho/dot(q_0,v_prev);
+        h = x + alpha*p_prev;
 
         if (norm(b-A*h)< tol)
         {
-            x[k]=h;
+            x = h;
             return k;
         }
-        auto s = r[k+1] - alpha * v[k];
-        auto t = A*s;
-        omega[k]= dot(t,s) / dot(t,t);
-        x[k]= h+omega*s;
+        s = r_prev - alpha * v_prev;
+        t = A*s;
+        omega= dot(t,s) / dot(t,t);
+        x = h+omega*s;
 
         if (norm(b-A*x)<tol)
         {
             return k;
         }
-        r[k] = s-omega[k]*t;
+        r_prev = s-omega*t;
+        omega_prev = omega;
+        rho_prev=rho;
+        // std::cout << norm(b-A*h) << std::endl;
     }
 
-    return 0;
+    return -1;
 } 
 
 template<typename T>
@@ -391,24 +394,32 @@ int main(int argc, char* argv[])
     Vector<double> y0 = {0.4,0.2,0.0,-0.2};
     Vector<int> y1 = {1,2,3,4};
     // Vector<double> y(8);
-    // Vector<double> x = {0.1,0.2,0.3,0.4};
-    // Vector<double> b = {0.2,0.4,0.-0.6,-0.9};
-    // // Matrix<double> A[4][4] = {0.0, 1.0 ,2.0 ,3.0 ,4.0 , 5.0 , 6.0 , 7.0 , 8.0 , 9.0 , 10.0 , 11.0  , 12.0, 13.0, 14.0, 15.0};
+    Vector<double> x = {0.1,0.2,0.3,0.4};
+    Vector<double> b = {2,4,0.6,0.8};
+    Matrix<double> A(4,4);
+    A[{0,0}] = 1;
+    A[{1,1}] = 1;
+    A[{2,2}] = 1;
+    A[{3,3}] = 1;
+    A[{2,3}] = -1;
+    
+    std::cout << bicgstab(A,b,x) << std::endl;
 
-    // // std::cout << bicgstab(A,b,x) << std::endl;
+    double t0 = 0;
+    double gamma = 0.009;
+    double h = 0.001;
+    SimplestWalker<double> SW(y0, t0, gamma);
 
-    // // Vector<int> y1 = {10,10, 20 ,30};
-    // // Vector y3 = std::move(y1);
-    // double t0 = 0;
-    // double gamma = 0.009;
-    // double h = 0.001;
+    Vector<double> y_dot = SW.derivative(y0);
+    while (SW.t < 2)
+    {
+        SW.step(h);
 
-    // y = y0;
-    // SimplestWalker<double> SW(y0, t0, gamma);
-
-    // Vector<double> y_dot = SW.derivative(y0);
-    // std::cout << SW.y[1] << std::endl;
-    // Vector<double> y_new = SW.step(h);
-    // std::cout << (y1-y0)[3] << std::endl;
+        std::cout << std::endl;
+        std::cout << SW.y[0] << std::endl;
+        std::cout << SW.y[1] << std::endl;
+        std::cout << SW.y[2] << std::endl;
+        std::cout << SW.y[3] << std::endl;
+    }
     return 0;
 }
