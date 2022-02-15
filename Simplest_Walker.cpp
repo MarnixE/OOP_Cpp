@@ -16,21 +16,31 @@ template <typename T>
 class Vector
 {
     // Your implementation of the Vector class starts here
-    public:        
-        T* data;
+    private:        
         int length;
-
+        T* data;
+    
+    public:
         // Default Constructor
-        Vector():data(nullptr),length(0){}
+        Vector()
+        {
+            length = 0;
+            data = nullptr;
+        }
         
         //Constructor 1
-        Vector(int l):data(new T[l]()),length(l) {}
+        Vector(int l)
+        {
+            length=l;
+            data = new T[l];
+        }
 
         //Constructor 2
         Vector(const std::initializer_list<T>& list)
         : Vector((int)list.size())
         {
             std::uninitialized_copy(list.begin(), list.end(), data);
+            length = list.size();
         }
         
         // destructor
@@ -54,8 +64,8 @@ class Vector
         Vector(Vector&& other)
         :data(other.data),length(other.length)
         {
-            other.data   = nullptr;
             other.length = 0;
+            other.data   = nullptr;
         }
 
         // Operators
@@ -65,7 +75,8 @@ class Vector
         {
             if (this != &other)
             {
-                delete[] data;
+                if(length!=0)
+                    delete[] data;
                 data   = new T[other.length]();
                 length = other.length;
                 for (int i=0; i<other.length; i++)
@@ -80,9 +91,7 @@ class Vector
             if (this != &other)
             {
                 if (length!=0)
-                {
                     delete[] data;
-                }
                 length = other.length;
                 data   = other.data;
                 other.length = 0;
@@ -91,22 +100,27 @@ class Vector
             return *this;
         } 
 
-        T& operator[](const int i)const
+        T& operator[](const int& i)const
         {
-            return data[i];
+            if(i >= length)
+            {
+                std::invalid_argument("Vector index is outside bounds!");
+            }
+            T& d = this ->data[i];
+            return d;
         }
 
         // Operator+
 
         // Add another vector
         template<typename U>
-        auto operator+(const Vector<U>& other) const-> Vector<decltype(data[0]+other.data[0])>
-        {
+        Vector<typename std::common_type<T,U>::type> operator+(const Vector<U>& other) const
+            {
             // Throw exception if the vectors have different length
-            if (length!=other.length) throw "Vectors have different size!";
+            if (length!=other.length) throw std::invalid_argument("Vectors have different size!");
             else
             {
-            Vector<decltype(data[0]+other.data[0])> v3(other.length);
+            Vector<typename std::common_type<T,U>::type> v3(length);
             for (auto i=0; i<length; i++)
                 v3.data[i] = data[i] + other.data[i];
             return v3;
@@ -117,44 +131,52 @@ class Vector
 
         // Subtract another vector
         template<typename U>
-        auto operator-(const Vector<U>& other) const -> Vector<decltype(data[0]-other.data[0])>
+        Vector<typename std::common_type<T,U>::type> operator-(const Vector<U>& other) const
         {
             // Throw exception if the vectors have different length
-            if (length!=other.length) throw "Vectors have different size!";
+            if (length!=other.len()) throw std::invalid_argument("Vectors have different size!");
             else
             {
-            Vector<decltype(data[0]-other.data[0])> v3(other.length);
+            Vector<typename std::common_type<T,U>::type> v3(other.len());
             for (auto i=0; i<length; i++)
-                v3.data[i] = data[i] - other.data[i];
+                v3.data[i] = data[i] - other[i];
             return v3;
             }
         }
 
         template<typename A>
-        auto operator*(const A scalar) const-> Vector<decltype(data[0]*scalar)>
+        Vector<typename std::common_type<T,A>::type> operator*(const A scalar) const
         {
-            Vector<decltype(data[0]*scalar)> v3(length);
+            Vector<typename std::common_type<T,A>::type> v3(length);
             for (auto i=0; i<length; i++)
                 v3.data[i] = data[i] * scalar;
             return v3;
         }
+        
+        int len()const
+        {
+            return length;
+        }
+
+        template<typename A>
+        int len(const Vector<A>& vec)const
+        {
+            return vec.length;
+        }
+
 
 };
 
 template<typename A,typename B>
-        auto operator*(const A scalar,Vector<B> vec) -> Vector<decltype(vec.data[0]*scalar)>
+        Vector<typename std::common_type<A,B>::type> operator*(const A scalar,Vector<B> vec)
         {
-            Vector<decltype(vec.data[0]*scalar)> v3(vec.length);
+            Vector<typename std::common_type<A,B>::type> v3(vec.length);
             for (auto i=0; i<vec.length; i++)
                 v3.data[i] = vec.data[i] * scalar;
             return v3;
         }
 
-template<typename A>
-        int len(const Vector<A>& vec)
-        {
-            return vec.length;
-        }
+
 
 
 
@@ -164,10 +186,10 @@ dot(const Vector<T>& lhs,
     const Vector<U>& rhs)
 {
     // Your implementation of the dot function starts here
-    if (lhs.length!=rhs.length) throw "Vectors have different size!";
+    if (lhs.length!=rhs.length) throw std::invalid_argument("Vectors have different size!");
     else
     {
-        auto sum = 0;
+        typename std::common_type<T,U>::type  sum = 0;
         for (auto i=0; i<lhs.length; i++)
             sum = sum + lhs.data[i]*rhs.data[i];
         return sum;
@@ -175,10 +197,11 @@ dot(const Vector<T>& lhs,
 }
 
 template<typename T>
-T norm(const Vector<T>& vec)
+T 
+norm(const Vector<T>& vec)
 {
     // Your implementation of the norm function starts here
-    auto norm = 0;
+    T norm = 0;
     for (auto i=0; i<vec.length; i++)
         norm = norm + pow(vec.data[i],2);
     return sqrt(norm);
@@ -225,7 +248,7 @@ Vector<typename std::common_type<T,U>::type>
 operator* (const Matrix<T>& lhs, const Vector<U>& rhs)
 {
 
-    if (lhs.cols != rhs.length) throw "The Matrix and Vector are not compatible.";
+    if (lhs.cols != rhs.length) throw std::invalid_argument("The Matrix and Vector are not compatible.");
 
     Vector<typename std::common_type<T,U>::type> v(lhs.rows);
 
@@ -252,71 +275,72 @@ int bicgstab(const Matrix<T>& A,
     //auto v_0,p_0 = 0;
     //auto alpha, rho_0,omega_0 = 1;
 
-    Vector<T> q;
-    q.push_back(b-A*x[0]);
-    Vector<T> r;
-    r.push_back(b-A*x[0]);
-    Vector<T> p;
-    p.push_back(0);
-    Vector<T> v;
-    v.push_back(0);
-    auto alpha=1;
-    Vector<T> rho;
-    rho.push_back(1);
-    Vector<T>omega;
-    omega.push_back(1);
+    // Vector<T> q;
+    // q.push_back(b-A*x[0]);
+    // Vector<T> r;
+    // r.push_back(b-A*x[0]);
+    // Vector<T> p;
+    // p.push_back(0);
+    // Vector<T> v;
+    // v.push_back(0);
+    // auto alpha=1;
+    // Vector<T> rho;
+    // rho.push_back(1);
+    // Vector<T>omega;
+    // omega.push_back(1);
 
 
 
 
-    for (auto k=1; k<maxiter; k++)
-    {
-        auto rho_k = dot(q[0], r[k-1]);
-        r.push_back(rho_k);
-        auto beta = (rho[k]/rho[k-1])*(alpha/omega[k-1]);
-        auto p_k = r[k-1] + beta*(p[k-1] - omega[k-1]*v[k-1]);
-        p.push_back(p_k);
-        v.push_back(A*p[k]);
-        alpha = rho[k]/dot(q[0],v[k]);
-        auto h = x[k-1] + alpha*p[k];
+    // for (auto k=1; k<maxiter; k++)
+    // {
+    //     auto rho_k = dot(q[0], r[k-1]);
+    //     r.push_back(rho_k);
+    //     auto beta = (rho[k]/rho[k-1])*(alpha/omega[k-1]);
+    //     auto p_k = r[k-1] + beta*(p[k-1] - omega[k-1]*v[k-1]);
+    //     p.push_back(p_k);
+    //     v.push_back(A*p[k]);
+    //     alpha = rho[k]/dot(q[0],v[k]);
+    //     auto h = x[k-1] + alpha*p[k];
 
-        if (norm(b-A*h)< tol)
-        {
-            x.push_back(h);
-            return k;
-        }
-        auto s = r[k-1] - alpha * v[k];
-        auto t = A*s;
-        auto omega_k= dot(t,s) / dot(t,t);
-        omega.push_back(omega_k);
-        auto x_k= h+omega[k]*s;
-        x.push_back(x_k);
+    //     if (norm(b-A*h)< tol)
+    //     {
+    //         x.push_back(h);
+    //         return k;
+    //     }
+    //     auto s = r[k-1] - alpha * v[k];
+    //     auto t = A*s;
+    //     auto omega_k= dot(t,s) / dot(t,t);
+    //     omega.push_back(omega_k);
+    //     auto x_k= h+omega[k]*s;
+    //     x.push_back(x_k);
 
-        if (norm(b-A*x[k])<tol)
-        {
-            return k;
-        }
-        auto r_k = s-omega[k]*t;
-        r.push_back(r_k);
-    }
+    //     if (norm(b-A*x[k])<tol)
+    //     {
+    //         return k;
+    //     }
+    //     auto r_k = s-omega[k]*t;
+    //     r.push_back(r_k);
+    // }
 
     return 0;
 }
+
 template<typename T>
 void heun(const Vector<std::function<T(const Vector<T>&, T)> >& f,
           Vector<T>&                                            y, 
           T                                                     h,
-          T&                                                    t) 
+          T&                                                    t)
 {
     // Your implementation of the heun function starts here
-    Vector<double> s = {f[0](y, 0.009),f[1](y, 0.009),f[2](y, 0.009),f[3](y, 0.009)};
+    double g = 0.009;
+    Vector<double> s = {f[0](y, g),f[1](y, g),f[2](y, g),f[3](y, g)};
 
-    // Vector<double> y_bar = y + h * s;
-
-    // Vector<double> s_bar = {f[0](y_bar, 0.009),f[1](y_bar, 0.009),f[2](y_bar, 0.009),f[3](y_bar, 0.009)};
+    y = y + h * s;
+    // Vector<double> s_bar = {f[0](y_bar, g),f[1](y_bar, g),f[2](y_bar, g),f[3](y_bar, g)};
+    
     // y = y + h/2 * (s + s_bar);
 }
-    
 
 template<typename T>
 class SimplestWalker
@@ -353,6 +377,10 @@ public:
     const Vector<T>& step(T h) 
     {
         heun(f,y,h,t);
+
+        y = y - h/2 * derivative(y);
+
+        heun(f,y,h/2,t);
         return y;
     }
 };
@@ -360,25 +388,26 @@ public:
 int main(int argc, char* argv[])
 {
     Vector<double> y0 = {0.4,0.2,0.0,-0.2};
-    Vector<double> y = {1.};
-    Vector<double> x = {0.1,0.2,0.3,0.4};
-    Vector<double> b = {0.2,0.4,0.-0.6,-0.9};
-    // Matrix<double> A[4][4] = {0.0, 1.0 ,2.0 ,3.0 ,4.0 , 5.0 , 6.0 , 7.0 , 8.0 , 9.0 , 10.0 , 11.0  , 12.0, 13.0, 14.0, 15.0};
+    Vector<int> y1 = {1,2,3,4};
+    // Vector<double> y(8);
+    // Vector<double> x = {0.1,0.2,0.3,0.4};
+    // Vector<double> b = {0.2,0.4,0.-0.6,-0.9};
+    // // Matrix<double> A[4][4] = {0.0, 1.0 ,2.0 ,3.0 ,4.0 , 5.0 , 6.0 , 7.0 , 8.0 , 9.0 , 10.0 , 11.0  , 12.0, 13.0, 14.0, 15.0};
 
-    // std::cout << bicgstab(A,b,x) << std::endl;
+    // // std::cout << bicgstab(A,b,x) << std::endl;
 
-    // Vector<int> y1 = {10,10, 20 ,30};
-    // Vector y3 = std::move(y1);
-    double t0 = 0;
-    double gamma = 0.009;
-    double h = 0.001;
+    // // Vector<int> y1 = {10,10, 20 ,30};
+    // // Vector y3 = std::move(y1);
+    // double t0 = 0;
+    // double gamma = 0.009;
+    // double h = 0.001;
 
-    y = y0;
-    SimplestWalker<double> SW(y0, t0, gamma);
+    // y = y0;
+    // SimplestWalker<double> SW(y0, t0, gamma);
 
-    Vector<double> y_dot = SW.derivative(y0);
-    std::cout << SW.y[1] << std::endl;
-    Vector<double> y_new = SW.step(h);
-    std::cout << SW.y[1] << std::endl;
+    // Vector<double> y_dot = SW.derivative(y0);
+    // std::cout << SW.y[1] << std::endl;
+    // Vector<double> y_new = SW.step(h);
+    std::cout << (y0-y1)[0] << std::endl;
     return 0;
 }
