@@ -17,30 +17,14 @@ class Vector
 {
     // Your implementation of the Vector class starts here
     public:        
-        int length;
         T* data;
+        int length;
 
         // Default Constructor
-        Vector():length(0),data(nullptr){};
-
-        // Copy constructor
-        Vector(const Vector& other)
-        : Vector(other.length)
-        {
-            for (auto i=0; i<other.length; i++)
-                data[i] = other.data[i];        
-        }
-
-        // Move Constructor
-        Vector(Vector&& other)
-        : length(other.length),data(other.data)
-        {
-            other.length = 0;
-            other.data   = nullptr;
-        }
-
+        Vector():data(nullptr),length(0){}
+        
         //Constructor 1
-        Vector(const int l):length(l),data(new T [l]){};
+        Vector(int l):data(new T[l]()),length(l) {}
 
         //Constructor 2
         Vector(const std::initializer_list<T>& list)
@@ -48,13 +32,30 @@ class Vector
         {
             std::uninitialized_copy(list.begin(), list.end(), data);
         }
-
+        
         // destructor
         ~Vector()
         {
             delete[] data;
             data = nullptr;
-            length = 0;
+            length = 0;        
+        }
+
+
+        // Copy constructor
+        Vector(const Vector& other)
+        : Vector<T>(other.length)
+        {
+            for (auto i=0; i<other.length; i++)
+                data[i] = other.data[i];        
+        }
+
+        // Move Constructor
+        Vector(Vector&& other)
+        :data(other.data),length(other.length)
+        {
+            other.data   = nullptr;
+            other.length = 0;
         }
 
         // Operators
@@ -65,8 +66,8 @@ class Vector
             if (this != &other)
             {
                 delete[] data;
+                data   = new T[other.length];
                 length = other.length;
-                data   = new double[other.length];
                 for (int i=0; i<other.length; i++)
                     data[i] = other.data[i];
             }
@@ -127,7 +128,7 @@ class Vector
         }
 
         template<typename A>
-        auto operator*(const A scalar) -> Vector<decltype(data[0]*scalar)>
+        auto operator*(const A scalar) const-> Vector<decltype(data[0]*scalar)>
         {
             Vector<decltype(data[0]*scalar)> v3(length);
             for (auto i=0; i<length; i++)
@@ -147,7 +148,7 @@ template<typename A,typename B>
         }
 
 template<typename A>
-        int len(Vector<A> vec)
+        int len(const Vector<A>& vec)
         {
             return vec.length;
         }
@@ -270,7 +271,7 @@ int bicgstab(const Matrix<T>& A,
         auto rho_k = dot(q[0], r[k-1]);
         r.push_back(rho_k);
         auto beta = (rho[k]/rho[k-1])*(alpha/omega[k-1]);
-        auto p_k = r[k-1] + (beta*p[k-1]) - omega[k-1]*v[k-1];
+        auto p_k = r[k-1] + beta*(p[k-1] - omega[k-1]*v[k-1]);
         p.push_back(p_k);
         v.push_back(A*p[k]);
         alpha = rho[k]/dot(q[0],v[k]);
@@ -296,30 +297,30 @@ int bicgstab(const Matrix<T>& A,
         r.push_back(r_k);
     }
 
-    return -1;
+    return 0;
 }
 template<typename T>
 void heun(const Vector<std::function<T(const Vector<T>&, T)> >& f,
           Vector<T>&                                            y, 
           T                                                     h,
-          T&                                                    t)
+          T&                                                    t) 
 {
     // Your implementation of the heun function starts here
     Vector<double> s = {f[0](y, 0.009),f[1](y, 0.009),f[2](y, 0.009),f[3](y, 0.009)};
 
-    Vector<double> y_bar = y + h * s;
+    // Vector<double> y_bar = y + h * s;
 
-    Vector<double> s_bar = {f[0](y_bar, 0.009),f[1](y_bar, 0.009),f[2](y_bar, 0.009),f[3](y_bar, 0.009)};
-    y = y + h/2 * (s + s_bar);
+    // Vector<double> s_bar = {f[0](y_bar, 0.009),f[1](y_bar, 0.009),f[2](y_bar, 0.009),f[3](y_bar, 0.009)};
+    // y = y + h/2 * (s + s_bar);
 }
+    
 
 template<typename T>
 class SimplestWalker
 {
     // Your implementation of the simplest walker class starts here
 public:
-    Vector<T> y;
-    T h = 1E-3;
+    Vector<T> y = {1.};
     T t;
     T g;
     const Vector<std::function<double(const Vector<double>&, double)> > f =
@@ -330,10 +331,10 @@ public:
             [](Vector<double> const& y, double gamma) { return sin(y[1] - gamma); } };
 
     SimplestWalker(const Vector<T>& y0, 
-                     T          t0, 
-                     T          gamma)
+                    T               t0, 
+                    T               gamma)
         {
-            const Vector<T> y = y0;
+            y = y0;
             t = t0;
             g = gamma;
         }
@@ -348,56 +349,33 @@ public:
 
     const Vector<T>& step(T h) 
     {
-        Vector<T> y_dot = derivative(y);
-        
-        Vector<double> s = f[0](y, 0.009);
-
-        Vector<double> y_bar = y + h * s;
-
-        std::cout << y_bar[0] << std::endl;
-
-        // heun(f,y,h,t);
+        heun(f,y,h,t);
         return y;
     }
 };
 
 int main(int argc, char* argv[])
 {
-    // // Your testing of the simplest walker class starts here
-    // // Matrix<double> M(10, 20); 
-    // Matrix<double> M(3, 3); 
-    // // Vector<int> v1 = {1,2,3};
-    // Vector<double> v2 = {1.0,2.0,3.0};
-    // Vector<double> v3;
-    // // v3 = v2+v1;
-
-    // M[{0,0}] = 1.0; // set value at row 0, column 0 to 1.0
-    // M[{1,2}] = 2.0;
-    // M[{2,1}] = 5.0;
-
-    // // std::cout << M[{0,0}] << std::endl; // prints 1.0
-    // // std::cout << M({1,2}) << std::endl;
-    // // std::cout << M({3,3}) << std::endl;
-
-    // // Vector<double> v3;
-
-    // // std::cout << v2[2] << std::endl;
-
-    // v3 = M * v2;
-    // std::cout << norm(v2) << std::endl;
-    // std::cout << v3[0] << std::endl;
-    // std::cout << v3[1] << std::endl;
-    // std::cout << v3[2] << std::endl;
     Vector<double> y0 = {0.4,0.2,0.0,-0.2};
+    Vector<double> y = {1.};
+    Vector<double> x = {0.1,0.2,0.3,0.4};
+    Vector<double> b = {0.2,0.4,0.-0.6,-0.9};
+    // Matrix<double> A[4][4] = {0.0, 1.0 ,2.0 ,3.0 ,4.0 , 5.0 , 6.0 , 7.0 , 8.0 , 9.0 , 10.0 , 11.0  , 12.0, 13.0, 14.0, 15.0};
+
+    // std::cout << bicgstab(A,b,x) << std::endl;
+
+    // Vector<int> y1 = {10,10, 20 ,30};
+    // Vector y3 = std::move(y1);
     double t0 = 0;
     double gamma = 0.009;
     double h = 0.001;
 
+    y = y0;
     SimplestWalker<double> SW(y0, t0, gamma);
 
     Vector<double> y_dot = SW.derivative(y0);
-
+    std::cout << SW.y[1] << std::endl;
     Vector<double> y_new = SW.step(h);
-
+    std::cout << SW.y[1] << std::endl;
     return 0;
 }
